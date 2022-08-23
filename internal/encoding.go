@@ -27,7 +27,8 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/apache/thrift/lib/go/thrift"
+	// "github.com/apache/thrift/lib/go/thrift"
+	thriftV0100 "github.com/apache/thrift/thriftV0100/lib/go/thrift"
 	"go.uber.org/cadence/internal/common"
 )
 
@@ -75,12 +76,12 @@ type thriftEncoding struct{}
 
 // Marshal encodes an array of thrift into bytes
 func (g thriftEncoding) Marshal(objs []interface{}) ([]byte, error) {
-	var tlist []thrift.TStruct
+	var tlist []thriftV0100.TStruct
 	for i := 0; i < len(objs); i++ {
 		if !common.IsThriftType(objs[i]) {
-			return nil, fmt.Errorf("pointer to thrift.TStruct type is required for %v argument", i+1)
+			return nil, fmt.Errorf("pointer to thriftV0100.TStruct type is required for %v argument", i+1)
 		}
-		t := reflect.ValueOf(objs[i]).Interface().(thrift.TStruct)
+		t := reflect.ValueOf(objs[i]).Interface().(thriftV0100.TStruct)
 		tlist = append(tlist, t)
 	}
 	return common.TListSerialize(tlist)
@@ -88,13 +89,13 @@ func (g thriftEncoding) Marshal(objs []interface{}) ([]byte, error) {
 
 // Unmarshal decodes an array of thrift into bytes
 func (g thriftEncoding) Unmarshal(data []byte, objs []interface{}) error {
-	var tlist []thrift.TStruct
+	var tlist []thriftV0100.TStruct
 	for i := 0; i < len(objs); i++ {
 		rVal := reflect.ValueOf(objs[i])
 		if rVal.Kind() != reflect.Ptr || !common.IsThriftType(reflect.Indirect(rVal).Interface()) {
-			return fmt.Errorf("pointer to pointer thrift.TStruct type is required for %v argument", i+1)
+			return fmt.Errorf("pointer to pointer thriftV0100.TStruct type is required for %v argument", i+1)
 		}
-		t := reflect.New(rVal.Elem().Type().Elem()).Interface().(thrift.TStruct)
+		t := reflect.New(rVal.Elem().Type().Elem()).Interface().(thriftV0100.TStruct)
 		tlist = append(tlist, t)
 	}
 

@@ -23,21 +23,22 @@ package common
 import (
 	"reflect"
 
-	"github.com/apache/thrift/lib/go/thrift"
+	// "github.com/apache/thrift/lib/go/thrift"
+	thriftV0100 "github.com/apache/thrift/thriftV0100/lib/go/thrift"
 )
 
 // TSerialize is used to serialize thrift TStruct to []byte
-func TSerialize(t thrift.TStruct) (b []byte, err error) {
-	return thrift.NewTSerializer().Write(t)
+func TSerialize(t thriftV0100.TStruct) (b []byte, err error) {
+	return thriftV0100.NewTSerializer().Write(t)
 }
 
 // TListSerialize is used to serialize list of thrift TStruct to []byte
-func TListSerialize(ts []thrift.TStruct) (b []byte, err error) {
+func TListSerialize(ts []thriftV0100.TStruct) (b []byte, err error) {
 	if ts == nil {
 		return
 	}
 
-	t := thrift.NewTSerializer()
+	t := thriftV0100.NewTSerializer()
 	t.Transport.Reset()
 
 	// NOTE: we don't write any markers as thrift by design being a streaming protocol doesn't
@@ -45,7 +46,7 @@ func TListSerialize(ts []thrift.TStruct) (b []byte, err error) {
 
 	for _, v := range ts {
 		if e := v.Write(t.Protocol); e != nil {
-			err = thrift.PrependError("error writing TStruct: ", e)
+			err = thriftV0100.PrependError("error writing TStruct: ", e)
 			return
 		}
 	}
@@ -63,13 +64,13 @@ func TListSerialize(ts []thrift.TStruct) (b []byte, err error) {
 }
 
 // TDeserialize is used to deserialize []byte to thrift TStruct
-func TDeserialize(t thrift.TStruct, b []byte) (err error) {
-	return thrift.NewTDeserializer().Read(t, b)
+func TDeserialize(t thriftV0100.TStruct, b []byte) (err error) {
+	return thriftV0100.NewTDeserializer().Read(t, b)
 }
 
 // TListDeserialize is used to deserialize []byte to list of thrift TStruct
-func TListDeserialize(ts []thrift.TStruct, b []byte) (err error) {
-	t := thrift.NewTDeserializer()
+func TListDeserialize(ts []thriftV0100.TStruct, b []byte) (err error) {
+	t := thriftV0100.NewTDeserializer()
 	err = nil
 	if _, err = t.Transport.Write(b); err != nil {
 		return
@@ -77,7 +78,7 @@ func TListDeserialize(ts []thrift.TStruct, b []byte) (err error) {
 
 	for i := 0; i < len(ts); i++ {
 		if e := ts[i].Read(t.Protocol); e != nil {
-			err = thrift.PrependError("error reading TStruct: ", e)
+			err = thriftV0100.PrependError("error reading TStruct: ", e)
 			return
 		}
 	}
@@ -85,7 +86,7 @@ func TListDeserialize(ts []thrift.TStruct, b []byte) (err error) {
 	return
 }
 
-// IsUseThriftEncoding checks if the objects passed in are all encoded using thrift.
+// IsUseThriftEncoding checks if the objects passed in are all encoded using thriftV0100.
 func IsUseThriftEncoding(objs []interface{}) bool {
 	// NOTE: our criteria to use which encoder is simple if all the types are serializable using thrift then we use
 	// thrift encoder. For everything else we default to gob.
@@ -102,7 +103,7 @@ func IsUseThriftEncoding(objs []interface{}) bool {
 	return true
 }
 
-// IsUseThriftDecoding checks if the objects passed in are all de-serializable using thrift.
+// IsUseThriftDecoding checks if the objects passed in are all de-serializable using thriftV0100.
 func IsUseThriftDecoding(objs []interface{}) bool {
 	// NOTE: our criteria to use which encoder is simple if all the types are de-serializable using thrift then we use
 	// thrift decoder. For everything else we default to gob.
@@ -128,6 +129,6 @@ func IsThriftType(v interface{}) bool {
 	if reflect.ValueOf(v).Kind() != reflect.Ptr {
 		return false
 	}
-	t := reflect.TypeOf((*thrift.TStruct)(nil)).Elem()
+	t := reflect.TypeOf((*thriftV0100.TStruct)(nil)).Elem()
 	return reflect.TypeOf(v).Implements(t)
 }
